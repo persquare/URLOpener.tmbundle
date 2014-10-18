@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python -S
+
+"""Open a link (or Markdown style reference link) in TextMate's companion window."""
+
+import os
+import sys
+import re
+import plistlib
+from string import Template
+from urlparse import urlparse
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+import OpenURL
+import exit_codes as exit
+
+support_dir = os.environ['TM_BUNDLE_SUPPORT']
+rules_path = unicode(os.path.join(support_dir, '../Preferences/Rules.tmPreferences'), 'utf-8')
+try:
+    pl = plistlib.readPlist(rules_path)
+    # exit.show_tool_tip(str(pl))
+    settings = pl.get(u'settings', [])
+except:
+    exit.show_tool_tip('Could not read rules')
+
+rules = settings['rules']    
+
+# if "TM_SELECTED_TEXT" in os.environ:
+#     word = os.environ["TM_SELECTED_TEXT"]
+#     exit.show_tool_tip(word)
+# elif "TM_CURRENT_WORD" in os.environ and os.environ["TM_CURRENT_WORD"]:
+#     line, x = os.environ["TM_CURRENT_LINE"], int(os.environ["TM_LINE_INDEX"])
+#     exit.show_tool_tip("%s %d" % (line, x))
+
+
+
+url =  OpenURL.scan_line(os.environ['TM_CURRENT_LINE'])
+if not url:
+    exit.show_tool_tip('No URL found')
+scheme, path = OpenURL.split_url(url)
+if scheme == 'file':
+    _, ext = os.path.splitext(path)
+else:
+    ext = None
+
+# print url
+
+d = {'url':url, 'ext':ext, 'path':path}
+d.update(os.environ)
+# print d
+# args to open is always (url, path, ext)?
+handled = False
+for r_schemes, r_exts, r_action, r_transform in rules:
+    # print "&lt;p&gt;%s %s %s %s&lt;/p&gt;" % (r_schemes, r_exts, r_action, r_transform)
+    if not scheme in r_schemes:
+        continue
+    if r_exts and not ext in r_exts:
+        continue
+    if r_transform:
+        t = Template(r_transform)
+        path = t.safe_substitute(d)
+    if r_action == 'html':
+        OpenURL.open_in_htmlview(url)
+        handled = True
+        break
+    elif r_action == 'editor':
+        OpenURL.open_in_editor(path)
+        handled = True
+        break
+    else:
+        OpenURL.open_in_default_app(url)
+        handled = True
+        break
+        
+if not handled:
+    exit.show_tool_tip("not handled: "+url)
+    OpenURL.open_in_default_app(url)
+    
+
+</string>
+	<key>input</key>
+	<string>line</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string>@l</string>
+	<key>name</key>
+	<string>OpenURL</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>html</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>uuid</key>
+	<string>38D104EB-8B59-46E7-B85F-D2CAB12171A1</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>name</key>
+	<string>Rules</string>
+	<key>settings</key>
+	<dict>
+		<key>rules</key>
+		<array>
+			<array>
+				<array>
+					<string>http</string>
+					<string>https</string>
+				</array>
+				<array/>
+				<string>html</string>
+				<string>None</string>
+			</array>
+			<array>
+				<array>
+					<string>file</string>
+				</array>
+				<array>
+					<string>.pdf</string>
+					<string>.jpg</string>
+				</array>
+				<string>html</string>
+				<string>None</string>
+			</array>
+			<array>
+				<array>
+					<string>file</string>
+				</array>
+				<array>
+					<string>.m</string>
+					<string>.py</string>
+					<string>.txt</string>
+				</array>
+				<string>editor</string>
+				<string>None</string>
+			</array>
+			<array>
+				<array>
+					<string>zk</string>
+				</array>
+				<array/>
+				<string>editor</string>
+				<string>$ZK_DIR/zk$path.md</string>
+			</array>
+		</array>
+	</dict>
+	<key>uuid</key>
+	<string>E3DEADC3-461A-4BC6-B6C7-860648969D53</string>
+</dict>
+</plist>
