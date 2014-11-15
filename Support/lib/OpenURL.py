@@ -10,7 +10,6 @@ from urlparse import urlparse
 envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
 sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
 
-import exit_codes as exit
 
 # MATCH_URL = r'.*?((?:https?://|file://|mailto:|message://)\S+)'
 MATCH_URL = r'([a-z0-9_-]+):(?://)?(\S+)'
@@ -49,12 +48,9 @@ def split_url(url):
 
 def open_in_default_app(url):
     os.system("open %s" % (url))
-    exit.discard()
 
 def open_in_editor(path):
-    exit.show_tool_tip("<" + path + ">")
     os.system("open txmt://open?url=file://%s" % (path))
-    exit.discard()
      
 def open_in_htmlview(url):
    print """
