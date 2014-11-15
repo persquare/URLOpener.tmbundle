@@ -14,7 +14,43 @@ import sys
 import re
 import plistlib
 from string import Template
-from urlparse import urlparse
+
+def match_rule(link, rules, env):
+    """
+    link is a tuple (url, scheme, path, ext)
+    rules is a list of rules to match the link tuple against
+    env is a dictionary with the current environment
+    
+    returns the rule (if any) that matched
+    """
+    (url, scheme, path, ext) = link
+    matching_rule = None
+    for rule in rules:
+        r_schemes, r_exts, r_action, r_transform = rule
+        if not scheme in r_schemes:
+            continue
+        if r_exts and not ext in r_exts:
+            continue
+        if r_transform:
+            t = Template(r_transform)
+            path = t.safe_substitute(d)
+        if r_action == 'html':
+            OpenURL.open_in_htmlview(url)
+            matching_rule = rule
+            break
+        elif r_action == 'editor':
+            OpenURL.open_in_editor(path)
+            matching_rule = rule
+            break
+        else:
+            OpenURL.open_in_default_app(url)
+            matching_rule = rule
+
+    if not matching_rule:
+        OpenURL.open_in_default_app(url)
+
+    return matching_rule
+
 
 envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
 sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
@@ -22,6 +58,9 @@ sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sy
 import OpenURL
 import exit_codes as exit
 
+#
+# Read ruleset
+#
 support_dir = os.environ['TM_BUNDLE_SUPPORT']
 rules_path = unicode(os.path.join(support_dir, '../Preferences/Rules.tmPreferences'), 'utf-8')
 try:
@@ -33,58 +72,24 @@ except:
 
 rules = settings['rules']    
 
-# if "TM_SELECTED_TEXT" in os.environ:
-#     word = os.environ["TM_SELECTED_TEXT"]
-#     exit.show_tool_tip(word)
-# elif "TM_CURRENT_WORD" in os.environ and os.environ["TM_CURRENT_WORD"]:
-#     line, x = os.environ["TM_CURRENT_LINE"], int(os.environ["TM_LINE_INDEX"])
-#     exit.show_tool_tip("%s %d" % (line, x))
-
-
-
-url =  OpenURL.scan_line(os.environ['TM_CURRENT_LINE'])
+line = sys.stdin.read() 
+url =  OpenURL.scan_line(line)
 if not url:
-    exit.show_tool_tip('No URL found')
+    exit.show_tool_tip('No URL found in "%s"' % line)
 scheme, path = OpenURL.split_url(url)
 if scheme == 'file':
     _, ext = os.path.splitext(path)
 else:
     ext = None
 
-# print url
+## exit.show_html(str([scheme, url, path, ext]))
 
-d = {'url':url, 'ext':ext, 'path':path}
+d = {'url':url, 'scheme':scheme, 'ext':ext, 'path':path}
 d.update(os.environ)
-# print d
-# args to open is always (url, path, ext)?
-handled = False
-for r_schemes, r_exts, r_action, r_transform in rules:
-    # print "&lt;p&gt;%s %s %s %s&lt;/p&gt;" % (r_schemes, r_exts, r_action, r_transform)
-    if not scheme in r_schemes:
-        continue
-    if r_exts and not ext in r_exts:
-        continue
-    if r_transform:
-        t = Template(r_transform)
-        path = t.safe_substitute(d)
-    if r_action == 'html':
-        OpenURL.open_in_htmlview(url)
-        handled = True
-        break
-    elif r_action == 'editor':
-        OpenURL.open_in_editor(path)
-        handled = True
-        break
-    else:
-        OpenURL.open_in_default_app(url)
-        handled = True
-        break
-        
-if not handled:
-    exit.show_tool_tip("not handled: "+url)
-    OpenURL.open_in_default_app(url)
-    
 
+rule = match_rule((url, scheme, path, ext), rules, d)
+        
+exit.show_tool_tip('matching rule was: '+str(rule))            
 </string>
 	<key>input</key>
 	<string>line</string>
