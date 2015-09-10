@@ -14,12 +14,12 @@ sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sy
 # MATCH_URL = r'.*?((?:https?://|file://|mailto:|message://)\S+)'
 MATCH_URL = r'([a-z0-9_-]+):(?://)?([^\s\>\)]+)'
 MATCH_REF_URL = r'.*?\[.+?\]\[(.+?)\]'
-MATCH_REF_TEMPLATE = r'^.*?\[%s\]:(.+)'
+MATCH_REF_TEMPLATE = r'^.*?\[%s\]:\s*(.+)'
 MATCH_SCHEME = r'(.+?):'
 
 def expand_reference(ref):
     MATCH_REF = MATCH_REF_TEMPLATE % (ref,)
-    with sys.stdin as f:
+    with open(os.environ.get('TM_FILEPATH'), 'r') as f:
         for line in f:
             line = line.rstrip()
             match = re.match(MATCH_REF, line)
