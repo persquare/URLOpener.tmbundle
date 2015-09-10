@@ -12,7 +12,7 @@ sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sy
 
 
 # MATCH_URL = r'.*?((?:https?://|file://|mailto:|message://)\S+)'
-MATCH_URL = r'([a-z0-9_-]+):(?://)?(\S+)'
+MATCH_URL = r'([a-z0-9_-]+):(?://)?([^\s\>\)]+)'
 MATCH_REF_URL = r'.*?\[.+?\]\[(.+?)\]'
 MATCH_REF_TEMPLATE = r'^.*?\[%s\]:(.+)'
 MATCH_SCHEME = r'(.+?):'
