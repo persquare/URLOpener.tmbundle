@@ -6,6 +6,8 @@
 	<string>Rules</string>
 	<key>settings</key>
 	<dict>
+		<key>comment</key>
+		<string>Each entry in rules specify (url-schemes, file extensions, [editor OR html], optional transform template with access to scheme, url, path, ext AND environment)</string>
 		<key>rules</key>
 		<array>
 			<array>
