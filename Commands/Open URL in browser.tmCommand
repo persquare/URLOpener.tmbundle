@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>beforeRunningCommand</key>
+	<string>nop</string>
+	<key>command</key>
+	<string>#!/usr/bin/env python -S
+
+"""Open a link in TextMate's editor or browser depending on file type. What's considered a link and it's interpretation depends on Settings."""
+
+import os
+import sys
+import re
+import plistlib
+from string import Template
+
+def match_rule(link, rules, env):
+    """
+    link is a tuple (url, scheme, path, ext)
+    rules is a list of rules to match the link tuple against
+    env is a dictionary with the current environment
+    
+    returns the rule (if any) that matched
+    """
+    (url, scheme, path, ext) = link
+    matching_rule = None
+    for rule in rules:
+        r_schemes, r_exts, r_action, r_transform = rule
+        if not scheme in r_schemes:
+            continue
+        if r_exts and not ext in r_exts:
+            continue
+        if r_transform:
+            t = Template(r_transform)
+            path = t.safe_substitute(d)
+            url = t.safe_substitute(d)
+        if r_action == 'html':
+            OpenURL.open_in_default_app(url)
+            matching_rule = rule
+            break
+        elif r_action == 'editor':
+            OpenURL.open_in_editor(path)
+            matching_rule = rule
+            break
+        else:
+            OpenURL.open_in_default_app(url)
+            matching_rule = rule
+
+    if not matching_rule:
+        OpenURL.open_in_default_app(url)
+
+    return matching_rule
+
+
+envvars = ['TM_BUNDLE_SUPPORT', 'TM_SUPPORT_PATH']
+sys.path[:0] = [os.environ[v]+'/lib' for v in envvars if os.environ[v] not in sys.path]
+
+import OpenURL
+import exit_codes as exit
+
+#
+# Read ruleset
+#
+support_dir = os.environ['TM_BUNDLE_SUPPORT']
+rules_path = unicode(os.path.join(support_dir, '../Preferences/Rules.tmPreferences'), 'utf-8')
+try:
+    pl = plistlib.readPlist(rules_path)
+    # exit.show_tool_tip(str(pl))
+    settings = pl.get(u'settings', [])
+except:
+    exit.show_tool_tip('Could not read rules')
+
+rules = settings['rules']    
+
+line = sys.stdin.read() 
+url =  OpenURL.scan_line(line)
+if not url:
+    exit.show_tool_tip('No URL found in "%s"' % line)
+scheme, path = OpenURL.split_url(url)
+if scheme == 'file':
+    _, ext = os.path.splitext(path)
+else:
+    ext = None
+
+## exit.show_html(str([scheme, url, path, ext]))
+
+d = {'url':url, 'scheme':scheme, 'ext':ext, 'path':path}
+d.update(os.environ)
+
+rule = match_rule((url, scheme, path, ext), rules, d)
+        
+exit.show_tool_tip('matching rule was: '+str(rule))            
+</string>
+	<key>input</key>
+	<string>line</string>
+	<key>inputFormat</key>
+	<string>text</string>
+	<key>keyEquivalent</key>
+	<string>~@l</string>
+	<key>name</key>
+	<string>Open URL in browser</string>
+	<key>outputCaret</key>
+	<string>afterOutput</string>
+	<key>outputFormat</key>
+	<string>html</string>
+	<key>outputLocation</key>
+	<string>newWindow</string>
+	<key>uuid</key>
+	<string>A72FD97C-6E8A-45A8-A81A-821113D43969</string>
+	<key>version</key>
+	<integer>2</integer>
+</dict>
+</plist>
