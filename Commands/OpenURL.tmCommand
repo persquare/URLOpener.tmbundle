@@ -7,7 +7,7 @@
 	<key>command</key>
 	<string>#!/usr/bin/env python -S
 
-"""Open a link (or Markdown style reference link) in TextMate's companion window."""
+"""Open a link in TextMate's editor or companion HTML-window depending on file type. What's considered a link and it's interpretation depends on Settings."""
 
 import os
 import sys
@@ -34,6 +34,7 @@ def match_rule(link, rules, env):
         if r_transform:
             t = Template(r_transform)
             path = t.safe_substitute(d)
+            url = t.safe_substitute(d)
         if r_action == 'html':
             OpenURL.open_in_htmlview(url)
             matching_rule = rule
@@ -98,7 +99,7 @@ exit.show_tool_tip('matching rule was: '+str(rule))
 	<key>keyEquivalent</key>
 	<string>@l</string>
 	<key>name</key>
-	<string>OpenURL</string>
+	<string>Open URL</string>
 	<key>outputCaret</key>
 	<string>afterOutput</string>
 	<key>outputFormat</key>
