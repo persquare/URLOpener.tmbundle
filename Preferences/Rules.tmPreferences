@@ -38,6 +38,7 @@
 					<string>.m</string>
 					<string>.py</string>
 					<string>.txt</string>
+					<string>.todo</string>
 				</array>
 				<string>editor</string>
 				<string></string>
