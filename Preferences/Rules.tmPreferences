@@ -48,7 +48,7 @@
 				</array>
 				<array/>
 				<string>editor</string>
-				<string>$ZK_DIR/zk$path.md</string>
+				<string>"$ZK_DIR/zk$path.md"</string>
 			</array>
 		</array>
 	</dict>
