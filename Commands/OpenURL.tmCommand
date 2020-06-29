@@ -43,6 +43,10 @@ def match_rule(link, rules, env):
             OpenURL.open_in_editor(path)
             matching_rule = rule
             break
+        elif r_action == 'script':
+            os.system(url)
+            matching_rule = rule
+            break
         else:
             OpenURL.open_in_default_app(url)
             matching_rule = rule

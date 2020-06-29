@@ -51,6 +51,14 @@
 				<string>editor</string>
 				<string>"$ZK_DIR/zk$path.md"</string>
 			</array>
+			<array>
+				<array>
+					<string>outlook</string>
+				</array>
+				<array/>
+				<string>script</string>
+				<string>mdfind "com_microsoft_outlook_recordID == ${path}" -0 | xargs -0 open</string>
+			</array>
 		</array>
 	</dict>
 	<key>uuid</key>
